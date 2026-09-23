@@ -1,2 +1,262 @@
-# paycrypto-me-primitives
-PayCrypto.Me Primitives is a demand-driven low-level cryptographic and protocol capability layer whose composition — owned code, algorithms and external dependencies — exists exclusively in response to concrete capabilities required by PayCrypto.Me Core, while keeping implementations isolated, verifiable and replaceable.
+# PayCrypto.Me Primitives
+
+**Open, auditable cryptocurrency protocol primitives for PHP.**
+
+PayCrypto.Me Primitives is a focused library for building and verifying **public-key, non-custodial cryptocurrency operations** through small, explicit, composable capabilities.
+
+It is designed as both practical software and a **reference implementation / reference architecture**: something you can run, inspect, test, challenge, and independently verify.
+
+> **We own the composition, not the cryptography.**
+
+Rather than hiding protocol behavior behind a large coin-specific abstraction, Primitives makes the important boundaries visible: protocol semantics, definitions, composition, cryptographic capabilities, and the implementations delegated behind them.
+
+---
+
+## Why this project exists
+
+Cryptocurrency payment infrastructure often faces an uncomfortable trade-off.
+
+You can depend on a large library that brings far more behavior than you need, build coin-specific implementations that duplicate the same protocol layers, or place critical wallet logic behind a black box and ask consumers to trust its output.
+
+Primitives explores a different path:
+
+```text
+concrete requirement
+        ↓
+minimal capability
+        ↓
+explicit protocol composition
+        ↓
+replaceable low-level implementation
+        ↓
+independently verifiable result
+```
+
+The goal is not to create another everything-crypto SDK.
+
+The goal is to make a deliberately small set of cryptocurrency protocol behaviors **understandable enough to audit, explicit enough to verify, and modular enough to replace without redefining the architecture**.
+
+---
+
+## What makes Primitives different?
+
+### Capability-driven
+
+The library grows from concrete protocol requirements rather than from a catalog of coins or algorithms.
+
+A new blockchain, network, fork, asset, or format does not automatically earn a new architectural path.
+
+**Identity is not divergence.**
+
+If two protocols share behavior, they share capabilities. Specialization begins only where protocol semantics actually diverge.
+
+### Composition-first
+
+Primitives favors small capabilities that can be composed into protocol flows.
+
+```text
+HMAC-SHA512 ───────┐
+                   ├── BIP32 public derivation
+secp256k1 tweak ───┘
+
+SHA-256 ──────┐
+              ├── HASH160
+RIPEMD-160 ───┘
+
+HASH160 + address semantics + encoding
+                    ↓
+              public address
+```
+
+This avoids both coin-specific duplication and a universal configurable crypto manager.
+
+### Implementation-independent
+
+External libraries are useful implementation machinery, but they do not define the architecture.
+
+Library-specific points, big integers, buffers, or backend objects should not leak through capability boundaries.
+
+That makes low-level implementations replaceable and independently testable.
+
+### Public-key-first
+
+The initial scope is intentionally constrained to public material and read-only wallet behavior.
+
+Examples include extended public-key handling, non-hardened public derivation, public-key transformations required by supported protocols, public address construction, hashing/encoding composition, and validated network/protocol definitions.
+
+Private keys, seeds, mnemonics, signing, and transaction signing are outside the initial security surface.
+
+### Data where behavior does not change
+
+Network constants are definitions, not subclasses.
+
+When two networks differ only by parameters, Primitives represents that difference as validated data. A new capability is justified only when the behavior itself diverges.
+
+---
+
+## Auditable by design
+
+Open source is useful, but visibility alone is not the goal.
+
+Primitives is structured so important protocol behavior can be independently checked against multiple anchors:
+
+```text
+official/reference vectors
+          +
+project regression vectors
+          +
+known-good implementation outputs
+          +
+boundary and invalid-input tests
+          +
+independent differential verification
+```
+
+A disagreement is something to investigate — not something to resolve by majority vote.
+
+> **You should be able to inspect what the library does, understand why the composition exists, reproduce deterministic behavior, and verify the result without trusting a black box.**
+
+Architecture, tests, definitions, dependency boundaries, and documentation are therefore all part of the audit surface.
+
+---
+
+## Current architectural direction
+
+The first concrete capability that grounded the architecture is:
+
+```text
+XPUB
+  ↓
+public child derivation
+  ↓
+public key
+  ↓
+address construction
+  ↓
+public receiving address
+```
+
+Bitcoin provides the initial evidence base, including BIP32 public derivation and common public address constructions.
+
+That does **not** make the architecture Bitcoin-shaped.
+
+Shared behavior is modeled as reusable capabilities; protocol-specific behavior forks only at the point where semantics actually change.
+
+Future protocol support should therefore cost roughly in proportion to what is genuinely new about that protocol.
+
+---
+
+## OWN / COMPOSE / DELEGATE
+
+A simple rule guides the library.
+
+**We own** capability contracts, protocol composition, invariants, validated definitions, semantic value objects, and protocol-specific orchestration.
+
+**We compose** larger protocol behavior from smaller capabilities.
+
+**We delegate** specialized low-level machinery such as cryptographic algorithms and elliptic-curve mathematics to appropriate implementations.
+
+For example, BIP32 public-child derivation can own CKDpub semantics while composing HMAC-SHA512 and a secp256k1 public-key tweak capability.
+
+Implementing an algorithm ourselves merely because it looks small is not a project goal.
+
+> **Primitives does not eliminate dependencies. It prevents dependencies from defining the architecture.**
+
+---
+
+## Architecture is part of the project
+
+The code tells you what currently exists.
+
+The canonical architecture explains **why it exists, which decisions are intentional, what remains open, what has been rejected, and how the project may legitimately evolve**.
+
+That distinction matters for humans and coding agents alike.
+
+Before introducing a new protocol path or capability:
+
+```text
+What existing capabilities can be reused?
+        ↓
+Is the difference only data?
+        ├── yes → definition
+        └── no
+             ↓
+Where does behavior actually diverge?
+             ↓
+Can composition express it?
+        ├── yes → compose
+        └── no  → justify a new capability
+```
+
+The canonical architecture is therefore a contribution contract, not background reading.
+
+---
+
+## Reference implementation, not a crypto catalog
+
+Primitives is intentionally useful for different kinds of readers.
+
+If you build cryptocurrency payment infrastructure, it provides reusable protocol capabilities.
+
+If you study wallet derivation and address construction, it provides an architecture intended to make those flows inspectable.
+
+If you review or audit implementations, it provides explicit boundaries against which behavior can be tested.
+
+If you contribute a protocol, it provides extension rules designed to resist duplication and speculative abstractions.
+
+What it deliberately does **not** try to become is a generic catalog containing every cryptocurrency feature.
+
+> **The architecture grows from evidence, not speculation.**
+
+---
+
+## Project status
+
+The architecture is intentionally being established before broad implementation.
+
+Some contracts, implementation choices, protocol edge cases, and dependency selections may remain open until verified by specification evidence, compatibility tests, or focused technical spikes.
+
+That is deliberate. An unresolved question is preferable to a prematurely frozen abstraction.
+
+For the current source of truth, read the canonical architecture document in this repository.
+
+---
+
+## Contributing
+
+Contributions should preserve the capability-driven model.
+
+Before proposing a new abstraction, implementation path, or protocol-specific class, identify:
+
+1. the concrete requirement;
+2. existing capabilities that can be reused;
+3. new definitions required;
+4. the exact behavioral divergence;
+5. why existing composition cannot express it, if proposing a new capability;
+6. verification evidence for the behavior.
+
+A new coin name is not architectural evidence by itself.
+
+Architectural changes should update the canonical documentation rather than allowing implementation drift to redefine the project silently.
+
+---
+
+## Security
+
+Cryptocurrency protocol code deserves conservative boundaries.
+
+The public-key-only scope, test coverage, and architectural controls are not guarantees that a release is defect-free.
+
+Before relying on the library for value-bearing workflows, review supported behavior, test vectors, dependency versions, known limitations, and release status appropriate to your use case.
+
+Security issues that could put users at risk should be reported through the repository's designated private security-reporting channel rather than a public issue.
+
+---
+
+## The guiding idea
+
+> **The goal is not to predict every blockchain the project will support. The goal is to make the next legitimate requirement expensive only in proportion to what is genuinely new about it.**
+
+PayCrypto.Me Primitives exists as an **open, auditable, and independently useful construction in its own right**.
+
+**Inspect it. Test it. Challenge it. Build on it.**
