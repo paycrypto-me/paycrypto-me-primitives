@@ -15,6 +15,23 @@ A canonical is an architectural source of truth, not ordinary prose and not mere
 
 Canonical evolution is **replacement-based, not composition-based**. The newest accepted version must be self-sufficient and supersede the previous current version. Git/history may retain old versions, but readers must not need multiple historical canonicals to reconstruct the current architecture.
 
+
+## Repository worldview — closed-world by default
+
+This skill is intended to live inside **public PayCrypto.Me repositories**. When operating there, treat the repository and its explicitly linked public sources as the complete architectural universe for the task.
+
+> **For a public repository canonical, architecture outside the repository's declared public domain does not exist for documentary purposes unless the public repository itself explicitly defines a public boundary to it.**
+
+Do not introduce, infer, hint at, cross-reference, or preserve knowledge about private systems, private deployment topology, private consumers, private services, internal reuse, operational infrastructure, or non-public architecture merely because an author or agent may know that such things exist.
+
+This is not omission of in-scope knowledge. It is **scope integrity**.
+
+The preservation rule applies only to knowledge legitimately belonging to the governed public domain. Completeness is always relative to the declared scope.
+
+A public canonical must therefore be complete about the public domain it governs, independently understandable on its own terms, and free from unnecessary architectural breadcrumbs about systems outside that domain.
+
+> **The public project exists by its own declared purpose and merits, not as a map of a larger system.**
+
 ---
 
 # 1. Governing invariants
@@ -59,6 +76,10 @@ Use a scope note near the beginning. Example:
 > Core, SDK and Consumers are referenced only where their relationship with this domain is necessary to establish boundaries, dependency direction, requirements, constraints, or responsibilities. Their internal architecture belongs to their own canonical documents.
 
 Do not accidentally freeze another domain's internals through a contextual reference.
+
+For public repositories, apply an even stricter rule: **do not document non-public neighboring domains at all unless a public contract or boundary must be named for the public project to be understandable.** Prefer describing the public component entirely from its own purpose, inputs, outputs, guarantees, and extension rules.
+
+Knowledge available to the editor is not automatically knowledge that belongs in the document.
 
 ## 1.4 Canonical decisions are stronger than code shape
 
@@ -471,6 +492,12 @@ Can a reader identify what genuinely changed in this version and why?
 ## Source-of-truth test
 Would two current documents need to be composed to recover the architecture? If yes, FAIL.
 
+## Public-scope containment test
+Did the revision introduce knowledge, hints, topology, relationships, reuse information, or assumptions about systems outside the public repository's declared domain? If yes and the information is not required by a public boundary, FAIL.
+
+## Independent-purpose test
+Does the public project read as a complete, useful, auditable construction in its own right, or merely as a fragment of some larger undisclosed system? Prefer the former.
+
 ---
 
 # 12. Definition of done
@@ -486,7 +513,9 @@ A canonical revision is complete only when:
 - superseded decisions are explicit;
 - contradictions are resolved;
 - diagrams and prose agree;
-- neighboring domains remain contextual unless in scope;
+- neighboring public domains remain contextual only when required by an explicit public boundary;
+- non-public architecture has not leaked into the canonical;
+- the public project is documented as independently useful within its declared purpose;
 - terminology is coherent;
 - the document is self-sufficient;
 - mechanical checks were run where possible;
