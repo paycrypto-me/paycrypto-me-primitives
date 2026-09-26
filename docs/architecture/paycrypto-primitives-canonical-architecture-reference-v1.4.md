@@ -1,6 +1,6 @@
 # PayCrypto.Me Primitives --- Canonical Architecture Reference
 
-## Architecture Baseline v1.2
+## Architecture Baseline v1.4
 
 > **Document role:** canonical, self-sufficient architecture reference
 > for the **PayCrypto.Me Primitives** domain\
@@ -19,18 +19,17 @@
 
 > \[!IMPORTANT\] **Scope boundary --- read this before interpreting any
 > reference to the rest of PayCrypto.Me.**\
-> **Core, SDK and Consumers are referenced in this document exclusively
-> where their relationship with PayCrypto.Me Primitives is necessary to
-> establish Primitives' boundaries, dependency direction, requirements,
-> product constraints, or responsibilities. Their internal architecture,
-> implementation model, abstractions, APIs, domain model, orchestration,
-> lifecycle, and design decisions are outside the scope of this
-> architecture revision.**
+> **Core, SDK, Consumers, External Projects, and other domains are referenced
+> in this document only where their relationship with PayCrypto.Me Primitives
+> is necessary to establish the Primitives boundary, dependency direction,
+> requirement provenance, product constraints, or responsibilities. Their
+> internal architecture, implementation model, abstractions, APIs, domain
+> model, orchestration, lifecycle, and design decisions are outside the scope
+> of this architecture revision.**
 >
-> In this document, **Consumers** may include **WooCommerce / Magento /
-> API / PayCrypto.Me Solutions (like Crypto PaymentLinks, etc.) / other
-> consumers**. These names provide architectural context only. Their own
-> canonical architecture belongs in parallel domain-specific documents.
+> References to surrounding domains are intentionally shallow. This canonical
+> defines Primitives; it does not define the architecture of neighboring
+> domains.
 
 ------------------------------------------------------------------------
 
@@ -64,8 +63,8 @@ architecture** from this file without needing the conversation that
 produced it.
 
 > \[!NOTE\] Do not interpret the contextual diagrams in this document as
-> canonical internal designs for Core, SDK, Consumers, PayCrypto.Me
-> Solutions, or any other external domain. Their presence answers
+> canonical internal designs for Core, SDK, Consumers, External Projects,
+> or any other external domain. Their presence answers
 > questions such as **"who requires this capability?"**, **"where does
 > this dependency point?"**, and **"what must not leak across the
 > Primitives boundary?"**.
@@ -83,9 +82,7 @@ architecture. Only the relationship necessary to define the Primitives
 boundary is canonical here.
 
 ``` text
-WooCommerce / Magento / API /
-PayCrypto.Me Solutions (like Crypto PaymentLinks, etc.) /
-other consumers
+Consumer
              │
              ▼
         PayCrypto.Me SDK
@@ -138,8 +135,8 @@ The Primitives-specific consequences are:
 
 -   Primitives does not depend on Core domain objects merely to perform
     low-level cryptographic/protocol work.
--   Primitives does not know WooCommerce, Magento, API, Crypto
-    PaymentLinks, or other consumer-specific concepts.
+-   Primitives does not know consumer-specific concepts or the internal
+    architecture of surrounding domains.
 -   Core-facing capability boundaries must not expose external
     crypto-library types.
 -   Consumers should not need to know which BIP32, ECC, Base58, Bech32,
@@ -188,8 +185,6 @@ Consumer
 local cryptographic/protocol capability
 ```
 
-PayCrypto.Me Solutions may exist as consumers/services in the broader
-platform, but this document does not define their internals.
 
 ## 1.3 New-major context
 
@@ -239,14 +234,14 @@ Operational shorthand:
 Full definition:
 
 > **PayCrypto.Me Primitives is a demand-driven low-level cryptographic
-> and protocol capability layer whose composition --- owned code,
-> algorithms, and external dependencies --- exists exclusively in
-> response to concrete capabilities required by PayCrypto.Me Core, while
-> keeping implementations isolated, verifiable, and replaceable.**
+> and protocol capability layer whose composition exists in response to
+> validated concrete requirements, while keeping implementations isolated,
+> verifiable, and replaceable.**
 
-The reference to Core above identifies the source of concrete
-requirements; it does not import Core's internal domain model into
-Primitives.
+PayCrypto.Me Core is the first concrete consumer and primary initial
+requirement source, not the exclusive consumer. A requirement from any
+source becomes architectural evidence only after passing the same capability,
+composition, divergence, security, and evidence gates defined by this domain.
 
 ## 2.1 First consumer does not mean exclusive consumer
 
@@ -366,7 +361,6 @@ public-key-only v1 security scope
 dependency justification
 backend replaceability
 verification philosophy
-Primitive Watch
 Bitcoin-like/non-Bitcoin extension philosophy
 rejected Primitives approaches
 open Primitives decisions
@@ -382,12 +376,9 @@ internally specified here**:
 ``` text
 PayCrypto.Me Core
 PayCrypto.Me SDK
-WooCommerce consumer
-Magento consumer
-API consumer
-PayCrypto.Me Solutions
-Crypto PaymentLinks
-other consumers
+Consumers
+External Projects
+other surrounding domains
 their internal modules
 their public APIs
 their domain models
@@ -406,9 +397,16 @@ When revising this canonical file:
 > rejected alternative, open question, or continuation requirement
 > merely to shorten the document.**
 
-If a Primitives decision becomes obsolete, replace it with an explicit
-superseding decision and rationale. Absence is not an acceptable
-migration mechanism.
+If a materialized or accepted Primitives decision becomes obsolete, replace
+it with an explicit superseding decision and rationale. Absence is not an
+acceptable migration mechanism for architectural knowledge that legitimately
+belongs to this domain.
+
+Exploratory concepts that are rejected or determined to be outside the
+Primitives domain before becoming part of its materialized architecture do
+not require permanent historical memorialization in the current canonical.
+The preservation rule protects domain knowledge, not every discarded
+exploration.
 
 ------------------------------------------------------------------------
 
@@ -1478,7 +1476,7 @@ reasons to exist.
 
 For every proposed capability ask:
 
-1.  Which concrete Core requirement requires it?
+1.  Which validated concrete requirement requires it?
 2.  Does an existing capability already express it?
 3.  Is the difference behavior or only data?
 4.  Can existing capabilities be composed instead?
@@ -1512,50 +1510,50 @@ PayCrypto Core
 
 ## Primitives Dependency Principle
 
-> **Every dependency of PayCrypto.Me Primitives must be justified by a
-> concrete primitive required by an existing PayCrypto.Me Core
-> capability.**
+> **Every production dependency of PayCrypto.Me Primitives must be justified
+> by a concrete admitted Primitives capability backed by a validated
+> requirement.**
 
-A dependency with no traceable path to a concrete Core requirement
-should not ship in production.
+PayCrypto.Me Core remains the first concrete consumer and primary initial
+requirement source. Requirements originating elsewhere do not enter the
+architecture automatically; they must pass the same evidence, composition,
+divergence, and security gates. A dependency with no traceable path to an
+admitted Primitives capability should not ship in production.
 
 ------------------------------------------------------------------------
 
-# 24. External projects: three distinct roles
+# 24. External projects: implementation and reference roles
 
-Do not confuse an external project's role.
+External projects may relate to Primitives in distinct roles without their
+APIs defining the Primitives architecture.
 
   ---------------------------------------------------------------------
   Role                               Meaning
   ---------------------------------- ----------------------------------
   **Production implementation**      Actually shipped to satisfy a
-                                     capability
+                                     Primitives capability
 
-  **Reference implementation**       Used for
-                                     differential/compatibility testing
-
-  **Intelligence source**            Monitored for bugs, advisories,
-                                     regressions, lifecycle signals
+  **Reference implementation**       Used for independent differential
+                                     or compatibility verification
   ---------------------------------------------------------------------
 
-The same project may serve multiple roles, but one role does not imply
-another.
+The same project may serve both roles, but one role does not imply the other.
+Information from an external project may become evidence for a Primitives
+decision when it is relevant to a capability, implementation, or compatibility
+constraint.
 
 Examples conceptually:
 
 ``` text
 BitWasp
-├── possible reference
-└── intelligence source
+└── possible reference
 
 paragonie/ecc
 ├── initial production candidate
-├── possible reference
-└── intelligence source
+└── possible reference
 
 libsecp256k1
 ├── reference
-├── intelligence source
 └── possible future adapter target
 ```
 
@@ -1605,56 +1603,7 @@ known problem / lifecycle event
 
 ------------------------------------------------------------------------
 
-# 26. Primitive Watch
-
-Replaceability without awareness is insufficient.
-
-`Primitive Watch` is the process for observing known issues relevant to
-the exact capabilities we use.
-
-Monitor:
-
-``` text
-Security
-├── advisories
-└── vulnerabilities
-
-Correctness
-├── bugs
-├── edge cases
-└── protocol inconsistencies
-
-Compatibility
-├── PHP/runtime versions
-├── extensions
-└── deprecations
-
-Lifecycle
-├── archive status
-├── abandonment statements
-├── successor forks
-├── release stagnation
-└── dependency abandonment
-
-Standards
-├── BIP clarifications
-├── errata
-└── reference vectors
-```
-
-Goal:
-
-> **Reduce Mean Time To Awareness (MTTA) for known relevant problems.**
-
-AI may help correlate a known issue to affected capabilities/files,
-inspect fixes, generate candidate tests, and assist review.
-
-AI must not silently patch production, change algorithms, self-approve
-cryptographic changes, or silently enable fallback.
-
-------------------------------------------------------------------------
-
-# 27. Verification strategy
+# 26. Verification strategy
 
 Sensitive protocol behavior requires multiple independent anchors.
 
@@ -1686,14 +1635,12 @@ automatically truth.
 
 ------------------------------------------------------------------------
 
-# 28. Architectural resilience model
+# 27. Architectural resilience model
 
 ``` text
                  ARCHITECTURAL RESILIENCE
 
                       Replaceability
-                            +
-                      Observability
                             +
                        Verification
                             +
@@ -1701,14 +1648,13 @@ automatically truth.
 ```
 
 -   **Replaceability:** implementation can change without changing Core.
--   **Observability:** relevant known problems become visible quickly.
 -   **Verification:** deterministic tests protect semantics.
 -   **Containment:** dependency failure is bounded to the capability it
     implements.
 
 ------------------------------------------------------------------------
 
-# 29. Evidence-driven abstractions
+# 28. Evidence-driven abstractions
 
 The accepted design process:
 
@@ -1745,7 +1691,7 @@ speculative overengineering.
 
 ------------------------------------------------------------------------
 
-# 29A. Contribution Divergence Principle
+# 28A. Contribution Divergence Principle
 
 The canonical architecture is part of the contribution contract. Code
 alone is insufficient to communicate the intended extension model,
@@ -1803,7 +1749,7 @@ new blockchain / network / fork / asset / format
 This makes the **Primitive Composition Principle** enforceable as a
 contribution convention rather than merely an architectural preference.
 
-## 29A.1 Example: a Bitcoin-like network
+## 28A.1 Example: a Bitcoin-like network
 
 A request such as "support Litecoin" must not automatically become:
 
@@ -1823,7 +1769,7 @@ hierarchy is justified.
 A new capability is justified only when the requirement exposes behavior
 that existing definitions and capabilities cannot faithfully express.
 
-## 29A.2 Required reasoning for a new capability
+## 28A.2 Required reasoning for a new capability
 
 Every proposed new capability should be able to answer:
 
@@ -1861,7 +1807,7 @@ Verification:
 If the proposal cannot identify the behavioral divergence, the default
 architectural conclusion is **not** to add a new capability.
 
-## 29A.3 Humans and agents follow the same convention
+## 28A.3 Humans and agents follow the same convention
 
 The same rule applies whether the contribution is authored by a human,
 generated by an AI coding agent, or produced collaboratively.
@@ -1874,7 +1820,7 @@ The code tells a contributor what currently exists. The canonical
 document explains **why it exists in that form and how legitimate
 extension is expected to occur**.
 
-# 29B. Canonical document as an architectural control surface
+# 28B. Canonical document as an architectural control surface
 
 For Primitives, documentation is not merely descriptive after the
 implementation. The canonical document is one of the mechanisms that
@@ -2016,11 +1962,6 @@ Consequently:
                                      must not contain cryptographic
                                      behavior.
 
-  **Primitive Watch**                Monitoring/triage process for
-                                     known security, correctness,
-                                     compatibility, standards, and
-                                     lifecycle events.
-
   **OWN**                            PayCrypto owns protocol/product
                                      semantics.
 
@@ -2030,8 +1971,14 @@ Consequently:
   **DELEGATE**                       PayCrypto owns the contract but
                                      delegates sensitive machinery.
 
-  **Consumer**                       Platform/application using the
-                                     SDK, such as WooCommerce.
+  **Consumer**                       Architectural role inside the
+                                     PayCrypto.Me topology that uses the
+                                     SDK.
+
+  **External Project**               Project outside the PayCrypto.Me
+                                     architectural topology that
+                                     independently consumes the public
+                                     Primitives library.
 
   **Backend**                        Concrete implementation satisfying
                                      a low-level capability.
@@ -2078,10 +2025,9 @@ silently changed:
     it.
 -   Production uses deliberate backend selection, not silent runtime
     crypto fallback.
--   Every production dependency must be justified by a concrete Core
-    capability.
--   Primitive Watch + compatibility testing are part of resilience, not
-    optional afterthoughts.
+-   Every production dependency must be justified by an admitted Primitives
+    capability backed by a validated concrete requirement.
+-   Verification and compatibility testing are part of Primitives resilience.
 
 ------------------------------------------------------------------------
 
@@ -2232,9 +2178,10 @@ Do not build all future primitives first.
 
 ## Step 6 --- Expand only from concrete requirements
 
-Then add fixed-address, other Bitcoin-compatible flows, Lightning/hosted
-flows, stablecoin routes, etc., each using the same evidence-driven
-rule.
+After the first vertical slice, expand Primitives only when a new validated
+concrete requirement requires a capability or protocol composition that
+legitimately belongs to this domain. Apply the same evidence-driven,
+composition-first and divergence rules before expanding scope.
 
 ------------------------------------------------------------------------
 
@@ -2342,8 +2289,8 @@ evidence/reference, not mandatory scaffolding for the new runtime.
 
 ## 36.2 Treating BitWasp as the architecture
 
-Rejected. BitWasp may be production/reference/intelligence depending on
-later evidence, but its API and class hierarchy do not define PayCrypto.
+Rejected. BitWasp may be a production or reference implementation depending
+on later evidence, but its API and class hierarchy do not define PayCrypto.
 
 ## 36.3 Generic `Secp256k1` mirroring ECC math
 
@@ -2430,8 +2377,9 @@ Primitives must also avoid:
 >
 > **We do not build a generic cryptocurrency library.**
 >
-> We implement only capabilities demanded by concrete PayCrypto.Me Core
-> requirements.
+> We implement only capabilities justified by validated concrete requirements.
+> PayCrypto.Me Core is the first concrete consumer and primary initial
+> requirement source, not the exclusive consumer.
 >
 > We share behavior until the exact point where protocol semantics
 > diverge.
@@ -2457,8 +2405,8 @@ Primitives must also avoid:
 > We design extension points for foreseeable change, but we do not
 > implement hypothetical requirements.
 >
-> Every production dependency must be traceable to a concrete Core
-> requirement.
+> Every production dependency must be traceable to an admitted Primitives
+> capability backed by a validated concrete requirement.
 >
 > Cryptographic backend replacement is explicit, verified, and
 > fail-closed --- never an invisible runtime fallback.
@@ -2508,8 +2456,8 @@ following interpretation:
 > capability-driven composition, public-key-only scope, minimal
 > implementation-independent secp256k1 contracts, and the
 > OWN/COMPOSE/DELEGATE model. Do not introduce future capabilities
-> without a concrete requirement. Before implementation, refine the
-> minimal contracts and produce a capability/dependency feasibility
+> without a concrete requirement. As the first implementation phase, refine
+> the minimal contracts and produce a capability/dependency feasibility
 > matrix, with special attention to BIP32 invalid-child semantics,
 > official vectors, Base58/GMP independence, and an ECC adapter spike
 > using paragonie/ecc as an initial candidate rather than a permanent
@@ -2585,7 +2533,7 @@ Those omissions are intentional: they are not accepted architecture yet.
 
 ------------------------------------------------------------------------
 
-# 42. v1.2 revision record
+# 42. Revision record
 
 This revision is **additive and superseding**. It retains the complete
 v1.1 Primitives canonical content and adds the architectural conclusions
@@ -2618,5 +2566,66 @@ The principal additions are:
     statements, and handoff requirements encode these conclusions so
     they cannot be lost in future revisions.
 
-Per the canonical replacement policy, **v1.2 replaces v1.1 as the
+At the v1.2 checkpoint, per the canonical replacement policy, **v1.2
+superseded v1.1 as the canonical source of truth for the PayCrypto.Me
+Primitives domain**.
+
+## 42.1 v1.3 revision record
+
+This revision supersedes v1.2 and is primarily a **domain-boundary correctness
+revision**. It preserves the established Primitives capability architecture
+while removing material that did not belong to the Primitives domain and
+correcting wording that had become inconsistent with accepted Primitives
+decisions.
+
+Principal changes:
+
+1. Primitives resilience is expressed through the properties Primitives owns:
+   replaceability, verification, and containment.
+2. External projects are modeled only through roles relevant to Primitives
+   architecture: production implementation and reference implementation.
+3. Core remains the first concrete consumer and primary initial requirement
+   source, but requirement and dependency principles are no longer phrased as
+   Core-exclusive.
+4. References to surrounding PayCrypto.Me domains are intentionally shallow
+   and exist only where necessary to define the Primitives boundary.
+5. Canonical preservation is clarified: architectural knowledge that
+   legitimately belongs to the governed domain must not disappear silently;
+   exploratory material determined not to belong to the domain before
+   materialization need not be preserved in the current canonical.
+
+No capability, protocol composition, requirement, guarantee, assumption,
+dependency choice, compatibility constraint, verification semantic, accepted
+Primitives invariant, or deliberately open Primitives decision was removed by
+this revision.
+
+## 42.2 v1.4 revision record
+
+This revision supersedes v1.3 and is the **implementation-entry consolidation**
+of the Primitives canonical. It does not introduce a new capability model or
+expand the domain. It closes the final documentary inconsistencies identified
+before implementation begins.
+
+Principal changes:
+
+1. The remaining obsolete external-project role is removed; external projects
+   are described only through Primitives-relevant production and reference
+   implementation roles.
+2. The continuation sequence no longer names surrounding-domain flows as a
+   Primitives roadmap. Expansion is permitted only when a validated concrete
+   requirement demands capability or protocol composition that legitimately
+   belongs to Primitives.
+3. Feasibility/dependency analysis, BIP32 invalid-child validation, official
+   vectors, Base58/GMP investigation, and the ECC adapter spike are explicitly
+   classified as the **first implementation phase**, rather than unresolved
+   architecture work that must precede implementation.
+4. The historical v1.2 replacement statement is phrased as historical status,
+   so this document has a single unambiguous current baseline: v1.4.
+
+No capability, protocol composition, requirement, guarantee, assumption,
+dependency choice, compatibility constraint, verification semantic, accepted
+Primitives invariant, deliberately open implementation decision, fitness test,
+or handoff constraint is removed by this consolidation.
+
+Per the canonical replacement policy, **v1.4 supersedes v1.3 and is the
 current source of truth for the PayCrypto.Me Primitives domain**.

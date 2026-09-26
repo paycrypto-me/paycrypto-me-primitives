@@ -1,4 +1,4 @@
-# PayCrypto.Me Primitives
+# PayCrypto.Me Primitives PHP
 
 **Open, auditable cryptocurrency protocol primitives for PHP.**
 
