@@ -218,7 +218,7 @@ Some contracts, implementation choices, protocol edge cases, and dependency sele
 
 That is deliberate. An unresolved question is preferable to a prematurely frozen abstraction.
 
-For the current source of truth, read the canonical architecture document in this repository.
+For the current source of truth, read the [canonical architecture](./docs/architecture/paycrypto-primitives-canonical-architecture-reference-v1.4.md) document in this repository.
 
 ---
 
@@ -250,6 +250,12 @@ The public-key-only scope, test coverage, and architectural controls are not gua
 Before relying on the library for value-bearing workflows, review supported behavior, test vectors, dependency versions, known limitations, and release status appropriate to your use case.
 
 Security issues that could put users at risk should be reported through the repository's designated private security-reporting channel rather than a public issue.
+
+---
+
+## License
+
+PayCrypto.Me Primitives PHP is released under the [MIT License](./LICENSE).
 
 ---
 
